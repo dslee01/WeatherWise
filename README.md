@@ -44,15 +44,4 @@ python -m http.server 5500
 - `YOUTUBE_API_KEY`: show top 5 video results; otherwise a YouTube **search link** is returned.
 - `GOOGLE_STATIC_MAPS_KEY`: return a Static Map image URL; otherwise we return an **OpenStreetMap** link.
 
-## Demo Script (for recording)
-- Show creating a request for **"San Francisco"** with today → +4 days.
-- Click **Use my location** and fetch again.
-- View **Saved Requests**, open **View** to see the daily tiles.
-- Click **Update** to change to **"94105"** or **"37.77,-122.42"**.
-- Export **CSV** and **PDF**.
-- Try **Wikipedia** and **YouTube** for the city.
-- Open the map link.
 
----
-
-Built on 2025-08-10 10:38:31 UTC.
