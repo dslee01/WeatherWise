@@ -1,4 +1,4 @@
-# WeatherWise 
+# WeatherWise (TechAssesment 1 + 2)
 
 A complete weather app implementing both assessments (including optional extras).
 
