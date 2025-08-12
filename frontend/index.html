@@ -1,0 +1,346 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WeatherWise — Dylan Lee</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 24px; background: #f7f7fb; }
+    .app { max-width: 980px; margin: 0 auto; }
+    header { display:flex; align-items:center; justify-content:space-between; margin-bottom: 16px; }
+    h1 { margin: 0; font-size: 22px; }
+    .card { background:white; padding:16px; border-radius:12px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); margin-bottom:16px; }
+    .row { display:flex; gap:12px; flex-wrap:wrap; }
+    input, button { padding:10px; border-radius:8px; border:1px solid #ddd; font-size:14px; }
+    button.primary { background:#1f7aec; color:white; border: none; }
+    table { width:100%; border-collapse: collapse; }
+    th, td { padding:8px; border-bottom:1px solid #eee; text-align:left; font-size: 14px; }
+    .muted { color:#666; font-size:13px; }
+    .chip { padding: 2px 8px; border-radius: 999px; background: #eef4ff; font-size: 12px; }
+    .flex { display:flex; gap:8px; align-items:center; }
+    .right { text-align:right; }
+    .icon { font-size: 20px; }
+    .modal { position:fixed; inset:0; display:none; align-items:center; justify-content:center; background: rgba(0,0,0,0.4); }
+    .modal .content { background:white; padding:20px; border-radius:12px; width: min(560px, 92vw); }
+    .link { color:#1f7aec; text-decoration:none; }
+    .small { font-size: 12px; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:12px; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="flex">
+        <h1>WeatherWise — Dylan Lee</h1>
+        <span class="chip">Tech Assessment 1 & 2</span>
+      </div>
+      <div class="flex">
+        <button id="infoBtn">Info</button>
+       
+      </div>
+    </header>
+
+    <div class="card">
+      <div class="row">
+        <input id="location" placeholder="City, landmark, ZIP, or 'lat,lon' (e.g., 37.77,-122.42)" style="flex:2" />
+        <input id="from" type="date" />
+        <input id="to" type="date" />
+        <button id="useMyLocation">Use my location</button>
+        <button id="fetch" class="primary">Create & Fetch</button>
+      </div>
+      <div class="muted small" style="margin-top:8px">
+        Tip: Range up to 31 days. ZIP supports US (e.g., 94105). Past dates use historical data; future uses forecast.
+      </div>
+    </div>
+
+    <div id="current" class="card">
+      <h3 style="margin-top:0">Current Weather</h3>
+      <div id="currentContent" class="muted">No request yet. Create one above.</div>
+    </div>
+
+    <div class="card">
+      <div class="row" style="align-items:center">
+        <h3 style="margin:0">Saved Requests</h3>
+        <div style="flex:1"></div>
+        <button id="refresh">Refresh</button>
+        <button id="exportJson">Export JSON</button>
+        <button id="exportCsv">Export CSV</button>
+        <button id="exportMd">Export MD</button>
+        <button id="exportPdf">Export PDF</button>
+      </div>
+      <table id="reqTable">
+        <thead>
+          <tr><th>ID</th><th>Resolved</th><th>Range</th><th>Map</th><th class="right">Actions</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div id="details" class="card" style="display:none">
+      <h3 style="margin-top:0">Details</h3>
+      <div id="detailsContent"></div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Extras</h3>
+      <div class="row">
+        <input id="extraPlace" placeholder="Try: Paris, San Francisco, Tokyo Station" style="flex:2" />
+        <button id="wikiBtn">Wikipedia</button>
+        <button id="ytBtn">YouTube</button>
+      </div>
+      <div id="extrasOut" class="muted small" style="margin-top:8px"></div>
+    </div>
+  </div>
+
+  <div id="modal" class="modal" aria-hidden="true">
+    <div class="content">
+      <h3>About PM Accelerator</h3>
+      <p class="small" style="white-space: pre-line">
+The Product Manager Accelerator Program is designed to support PM professionals through every stage of their careers. From students looking for entry-level jobs to Directors looking to take on a leadership role, our program has helped over hundreds of students fulfill their career aspirations.
+
+Our Product Manager Accelerator community are ambitious and committed. Through our program they have learnt, honed and developed new PM and leadership skills, giving them a strong foundation for their future endeavors.
+
+Here are the examples of services we offer. Check out our website (link under my profile) to learn more about our services.
+
+🚀 PMA Pro
+End-to-end product manager job hunting program that helps you master FAANG-level Product Management skills, conduct unlimited mock interviews, and gain job referrals through our largest alumni network. 25% of our offers came from tier 1 companies and get paid as high as $800K/year. 
+
+🚀 AI PM Bootcamp
+Gain hands-on AI Product Management skills by building a real-life AI product with a team of AI Engineers, data scientists, and designers. We will also help you launch your product with real user engagement using our 100,000+ PM community and social media channels. 
+
+🚀 PMA Power Skills
+Designed for existing product managers to sharpen their product management skills, leadership skills, and executive presentation skills
+
+🚀 PMA Leader
+We help you accelerate your product management career, get promoted to Director and product executive levels, and win in the board room. 
+
+🚀 1:1 Resume Review
+We help you rewrite your killer product manager resume to stand out from the crowd, with an interview guarantee. Get started by using our FREE killer PM resume template used by over 14,000 product managers. https://www.drnancyli.com/pmresume
+
+🚀 We also published over 500+ free training and courses. Please go to my YouTube channel https://www.youtube.com/c/drnancyli and Instagram @drnancyli to start learning for free today.
+</p>
+      <div class="right"><button id="closeModal">Close</button></div>
+    </div>
+  </div>
+
+  <script>
+  // Hardcode API while testing
+  const API = window.location.origin;
+
+  const $ = (id) => document.getElementById(id);
+  const currentContent = $("currentContent");
+  const reqTableBody = document.querySelector("#reqTable tbody");
+  const details = $("details");
+  const detailsContent = $("detailsContent");
+
+  function wcIcon(code) {
+    if (code === null || code === undefined) return "❓";
+    if ([0].includes(code)) return "☀️";
+    if ([1,2,3].includes(code)) return "⛅";
+    if ([45,48].includes(code)) return "🌫️";
+    if ([51,53,55,61,63,65].includes(code)) return "🌧️";
+    if ([71,73,75,77].includes(code)) return "❄️";
+    if ([95,96,99].includes(code)) return "⛈️";
+    return "🌡️";
+  }
+
+  async function createRequest() {
+    const locationInput = $("location").value.trim();
+    const df = $("from").value;
+    const dt = $("to").value;
+    if (!locationInput || !df || !dt) {
+      alert("Please enter location and both dates.");
+      return;
+    }
+    try {
+      const r = await fetch(API + "/api/requests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ location: locationInput, date_from: df, date_to: dt })
+      });
+      if (!r.ok) {
+        const err = await r.json().catch(() => ({}));
+        throw new Error(err.detail || "Request failed (" + r.status + ")");
+      }
+      const rec = await r.json();
+      renderCurrent(rec);
+      await refresh();
+    } catch (e) {
+      alert("Error: " + e.message);
+    }
+  }
+
+  function renderCurrent(rec) {
+    const cw = rec.weather.current_weather;
+    const icon = cw ? wcIcon(cw.weathercode || null) : "🌡️";
+    currentContent.innerHTML = cw ? `
+      <div class="row">
+        <div class="card" style="flex:1">
+          <div class="muted">Location</div>
+          <div><b>${rec.resolved_name}</b> <span class="small">(${rec.latitude.toFixed(4)},${rec.longitude.toFixed(4)})</span></div>
+        </div>
+        <div class="card" style="flex:1">
+          <div class="muted">Now</div>
+          <div class="flex"><span class="icon">${icon}</span> ${cw.temperature}°C, wind ${cw.windspeed} km/h</div>
+        </div>
+        <div class="card" style="flex:1">
+          <div class="muted">Range</div>
+          <div>${rec.date_from} → ${rec.date_to}</div>
+        </div>
+      </div>
+    ` : "<span class='muted'>Current weather unavailable for this location. Try a recent/future date.</span>";
+  }
+
+  async function refresh() {
+    const r = await fetch(API + "/api/requests");
+    const list = await r.json();
+    reqTableBody.innerHTML = "";
+    for (const rec of list) {
+      const mapUrl = API + `/api/map?lat=${rec.latitude}&lon=${rec.longitude}`;
+      const mapLink = await (await fetch(mapUrl)).json();
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${rec.id}</td>
+        <td>${rec.resolved_name}</td>
+        <td><span class="mono">${rec.date_from} → ${rec.date_to}</span></td>
+        <td><a class="link" href="${mapLink.url}" target="_blank">${mapLink.provider}</a></td>
+        <td class="right">
+          <button data-act="view" data-id="${rec.id}">View</button>
+          <button data-act="edit" data-id="${rec.id}">Update</button>
+          <button data-act="del" data-id="${rec.id}">Delete</button>
+        </td>
+      `;
+      reqTableBody.appendChild(tr);
+    }
+  }
+
+  async function viewDetails(id) {
+    const r = await fetch(API + "/api/requests/" + id);
+    if (!r.ok) return alert("Not found");
+    const rec = await r.json();
+    let html = `
+      <div class="muted">#${rec.id} • ${rec.resolved_name} • ${rec.date_from} → ${rec.date_to}</div>
+      <div class="grid" style="margin-top:8px">
+    `;
+    for (const d of rec.weather.daily) {
+      html += `
+        <div class="card" style="padding:12px">
+          <div class="muted small">${d.date}</div>
+          <div class="flex"><span class="icon">${wcIcon(d.weathercode)}</span>
+            <div><b>${d.tmin_c}°C</b> → <b>${d.tmax_c}°C</b></div>
+          </div>
+        </div>
+      `;
+    }
+    html += "</div>";
+    detailsContent.innerHTML = html;
+    details.style.display = "block";
+  }
+
+  async function deleteRow(id) {
+    if (!confirm("Delete record #" + id + "?")) return;
+    const r = await fetch(API + "/api/requests/" + id, { method: "DELETE" });
+    if (!r.ok) return alert("Delete failed");
+    await refresh();
+    details.style.display = "none";
+  }
+
+  async function updateRow(id) {
+    const r = await fetch(API + "/api/requests/" + id);
+    const rec = await r.json();
+    const loc = prompt("New location (leave blank to keep):", rec.location_input) || null;
+    const df = prompt("New start date (YYYY-MM-DD, leave blank to keep):", rec.date_from) || null;
+    const dt = prompt("New end date (YYYY-MM-DD, leave blank to keep):", rec.date_to) || null;
+    const body = {};
+    if (loc) body.location = loc;
+    if (df) body.date_from = df;
+    if (dt) body.date_to = dt;
+    if (!Object.keys(body).length) return;
+    const rr = await fetch(API + "/api/requests/" + id, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+    if (!rr.ok) {
+      const err = await rr.json().catch(() => ({}));
+      alert("Update failed: " + (err.detail || rr.status));
+      return;
+    }
+    await refresh();
+    await viewDetails(id);
+  }
+
+  reqTableBody.addEventListener("click", (e) => {
+    const btn = e.target.closest("button");
+    if (!btn) return;
+    const id = btn.dataset.id;
+    const act = btn.dataset.act;
+    if (act === "view") viewDetails(id);
+    if (act === "edit") updateRow(id);
+    if (act === "del") deleteRow(id);
+  });
+
+  $("fetch").addEventListener("click", createRequest);
+  $("refresh").addEventListener("click", refresh);
+  $("exportJson").addEventListener("click", () => window.open(API + "/api/export?format=json","_blank"));
+  $("exportCsv").addEventListener("click", () => window.open(API + "/api/export?format=csv","_blank"));
+  $("exportMd").addEventListener("click", () => window.open(API + "/api/export?format=md","_blank"));
+  $("exportPdf").addEventListener("click", () => window.open(API + "/api/export?format=pdf","_blank"));
+
+  $("wikiBtn").addEventListener("click", async () => {
+    const q = $("extraPlace").value.trim();
+    if (!q) return alert("Enter a place name");
+    const r = await fetch(API + "/api/info?q=" + encodeURIComponent(q));
+    if (!r.ok) return $("extrasOut").textContent = "No Wikipedia result";
+    const j = await r.json();
+    $("extrasOut").innerHTML = `<b>${j.title}</b>: ${j.extract} <a class="link" target="_blank" href="${j.url}">Read more</a>`;
+  });
+  $("ytBtn").addEventListener("click", async () => {
+    const q = $("extraPlace").value.trim();
+    if (!q) return alert("Enter a place name");
+    const r = await fetch(API + "/api/media/youtube?q=" + encodeURIComponent(q));
+    const j = await r.json();
+    if (j.mode === "api") {
+      $("extrasOut").innerHTML = j.results.map(v => `<a class="link" target="_blank" href="${v.url}">🎥 ${v.title}</a>`).join(" • ");
+    } else {
+      $("extrasOut").innerHTML = `<a class="link" target="_blank" href="${j.search_url}">Open YouTube search</a>`;
+    }
+  });
+
+  $("useMyLocation").addEventListener("click", () => {
+    if (!navigator.geolocation) return alert("Geolocation not supported by your browser.");
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+      const lat = pos.coords.latitude.toFixed(4);
+      const lon = pos.coords.longitude.toFixed(4);
+      $("location").value = lat + "," + lon;
+      // auto-fill dates: today -> +4 days for a "5-day forecast"
+      const t = new Date();
+      const today = t.toISOString().slice(0,10);
+      const d5 = new Date(t.getTime() + 4*24*3600*1000).toISOString().slice(0,10);
+      $("from").value = today;
+      $("to").value = d5;
+    }, (err) => {
+      alert("Could not get location: " + err.message);
+    });
+  });
+
+  // Info modal
+  const modal = $("modal");
+  $("infoBtn").addEventListener("click", () => { modal.style.display = "flex"; modal.setAttribute("aria-hidden", "false"); });
+  $("closeModal").addEventListener("click", () => { modal.style.display = "none"; modal.setAttribute("aria-hidden", "true"); });
+
+  // Set default dates: today and +4 days
+  (function initDates() {
+    const t = new Date();
+    const today = t.toISOString().slice(0,10);
+    const d5 = new Date(t.getTime() + 4*24*3600*1000).toISOString().slice(0,10);
+    $("from").value = today;
+    $("to").value = d5;
+  })();
+
+  // Initial list
+  refresh();
+</script>
+</body>
+</html>
